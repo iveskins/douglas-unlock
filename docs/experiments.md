@@ -11,16 +11,16 @@ Status markers: `OBSERVED`, `OPERATOR-REPORTED`, `PENDING`, `FAILED`.
 | E005 | Root without `su` | `su: not found`; normal shell UID 2000 | OPERATOR-REPORTED (Hermes) |
 | E006 | MTK-SU R20 `-c id` | `uid=0(root) gid=0(root)`; `context=u:r:shell:s0` | **OPERATOR-REPORTED**, no raw session log in repo |
 | E007 | Inspect Amonet v1.2 | Version gates `259/2/6`; normal path patches GPT; `brick` path writes bootloader areas | SOURCE-INSPECTED |
-| E008 | Run `step-1.sh` GPT path | **Not attempted in this record** | PENDING |
-| E009 | Full bootloader unlock/TWRP | **Not confirmed** | PENDING |
-| E010 | Silk WebGL/Wasm/WebGPU tests | **Not captured** | PENDING |
+| E008 | Run `step-1.sh` GPT path | GPT modified, rebooted into Fire OS; live GPT checked | OPERATOR-REPORTED |
+| E009 | Amonet `step-2.sh` and TWRP boot | User reports reaching TWRP, then rebooting into Fire OS | OPERATOR-REPORTED; full log pending |
+| E010 | LineageOS ROM/update ZIP inventory and TWRP backup | Downloads reported; OTA ZIP path and backup not verified | PENDING |
 
 ## Next reproducible checks
 
 1. Record `ro.boot.*_version` using `tools/capture.py` and compare with Hermes' report.
 2. Preserve SHA-256 of the exact MTK-SU R20 binary tested, and record whether it replaced a bundled copy (Amonet v1.2 ZIP has no `bin/mtk-su`).
 3. Independently verify root again if necessary, keeping a full, sanitized terminal transcript.
-4. Inspect the patched GPT *offline* and confirm rollback strategy before any write.
+4. Archive Step 2 output and verify repeatable TWRP entry without rewriting firmware.
 5. Keep USB event logs running for any later BootROM experiments.
 
-Do not mark the device unlocked solely because MTK-SU returned UID 0.
+MTK-SU alone did not establish unlock. Subsequent successful TWRP boot strongly indicates the Amonet boot chain is functioning; independent bootloader status still pending.

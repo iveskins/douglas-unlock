@@ -1,50 +1,47 @@
-# Douglas unlock lab: reproducible research notes
+# Douglas Unlock Lab
 
-**Status (2026-10-15): Temporary UID 0 confirmed; Amonet Step 1 GPT change completed and post-reset Fire OS boot reported; final Step 2 preflight passed; Amonet Step 2 NOT executed and bootloader unlock NOT confirmed.**
+A reproducible **device-specific unlock and ROM lifecycle journal** for the **Amazon Fire HD 8 (2017)**, codename `douglas` (KFDOWI). Documents real experiments, commands, files, results, and recovery risks from stock Fire OS through Amonet, TWRP, and future ROM changes. This is **not** an automated unlocker.
 
-Research journal and read-only diagnostics for the Amazon Fire HD 8 (2017, `douglas`, model `KFDOWI`). This is **not** an automated unlocker. Scripts in `tools/` gather diagnostic information and do not write to Android partitions. High-risk commands are recorded as *unexecuted* until independently confirmed.
+**Current outcome (2026-10-15):** Amonet Steps 1 and 2 completed according to operator reports. **TWRP booted successfully**, and the tablet subsequently **booted back into Fire OS**. No persistent root or LineageOS installation has been confirmed. Full Step 2 terminal transcript is not available.
 
-## Quick start
+## Start here: chronological walkthrough
 
-```bash
+Read **[the numbered experiment timeline](docs/timeline.md)** first. Each step records the starting state, action or command, actual outcome, and evidence limitations. Then consult [experiment index](docs/experiments.md), [Amonet analysis](docs/amonet-analysis.md), and [TWRP/Fire OS return](reports/twrp_boot_and_fireos_return_2026-10-15.md).
+
+## Scope
+
+Included: Douglas hardware/firmware identification, ADB/fastboot and USB modes, MTK-SU, Amonet Step 1/2, GPT changes, TWRP, Fire OS, ROM ZIPs, OTA update discovery, backup/restore, ROM migration, recovery and source/archive provenance.
+
+Excluded: terminal setup, tmux, clipboard configuration, WebGPU/browser experiments, unrelated host workflows.
+
+## Reproduce read-only device inspection
+
+```sh
 sudo apt install adb fastboot python3 usbutils
 python3 tools/capture.py --output observations/$(date -u +%Y%m%dT%H%M%SZ)
-# connect and authorize the tablet, then run again to record its state
 ```
 
-`capture.py` is a one-shot read-only snapshot, not a background daemon. `tools/fire_tablet_inventory_v2.py` is an additional operator-tested inventory and USB/kernel-monitoring utility. To watch USB transitions separately, see [`docs/usb-monitoring.md`](docs/usb-monitoring.md). **Do not publish unredacted raw logs**: serials, hostnames, MAC addresses and paths may identify devices or people. Captured files are gitignored.
+`tools/fire_tablet_inventory_v2.py` and [USB mode notes](docs/usb-monitoring.md) are retained **only** for device identification and recovery diagnostics. The supplied tools are intended for observation, not firmware writes.
 
-## Evidence levels
+## Documentation
 
-- **Observed**: output directly recorded from the user's computer and reproduced in this repo (sanitized).
-- **Operator-reported**: Hermes/terminal output shared by the operator; original raw logs not provided.
-- **Source-inspected**: claims derived from the exact `amonet-douglas-v1.2.zip` uploaded for analysis.
-- **Community-reported**: third-party reports, not independent verification.
-- **Pending**: not tested.
-
-## Navigation
-
-| Document | Purpose |
+| File | Contents |
 |---|---|
-| [October 15 progress and deployment gate](docs/2026-10-15-status.md) | Step 1 outcome, Step 2 readiness, outstanding risks |
-| [Final preflight report](reports/final_preflight_verification_2026-10-15.md) | GPT ranges, checksums, evidence levels |
-| [Step 2 execution plan](reports/pre_deployment_report_2026-10-15.md) | Payload inventory and operator checklist |
-| [Host tooling validation](reports/host_monitoring_2026-10-15.md) | Inventory v2, tmux and monitoring status |
-| [Device profile](docs/device.md) | Hardware, Fire OS, USB identities, version gates |
-| [Experiment log](docs/experiments.md) | Chronological test results, confidence and next checks |
-| [Amonet analysis](docs/amonet-analysis.md) | Actual v1.2 script behavior, risk boundaries |
-| [USB monitoring](docs/usb-monitoring.md) | Reproducible udev/dmesg capture |
-| [Temporary root](docs/temporary-root.md) | MTK-SU R20 commands and reported outcome |
-| [Web graphics goal](docs/browser-gpu.md) | Wasm/WebGL/WebGPU test matrix |
-| [Sources](docs/sources.md) | Original downloads and upstream credits |
-| [Provenance](artifacts/README.md) | Archive hash and redistribution policy |
+| [Timeline](docs/timeline.md) | Numbered steps, commands, device states, results |
+| [Experiments](docs/experiments.md) | Indexed tests, successes, failures, unknowns |
+| [Device](docs/device.md) | Hardware, firmware and USB IDs |
+| [Temporary root](docs/temporary-root.md) | MTK-SU R20 test |
+| [Amonet analysis](docs/amonet-analysis.md) | Script behavior and risks |
+| [Final preflight](reports/final_preflight_verification_2026-10-15.md) | GPT comparison and payload hashes |
+| [Step 2 plan](reports/pre_deployment_report_2026-10-15.md) | Payloads and expected flashing sequence |
+| [TWRP and Fire OS](reports/twrp_boot_and_fireos_return_2026-10-15.md) | Actual post-unlock result |
+| [ROM lifecycle](docs/rom-lifecycle.md) | OTA ZIP preservation, TWRP backups, switching ROMs |
+| [Sources](docs/sources.md) | Upstream references and attribution |
 
-## Safety and scope
+## Evidence and safety
 
-This repo documents potentially destructive research. `step-1.sh` writes the GPT and requests a factory reset; `step-1.sh brick` writes boot partitions and firmware. Battery disconnection may reset a stuck tablet but does not guarantee unbricking. Do not run these operations on a device containing important data. Keep a backup, verified device identity and a recovery plan. No vendor binaries are committed by default.
+**User-observed** means the operator explicitly reported seeing the result. **Hermes-reported** means the agent provided output or a summary, but a complete raw session transcript is not in this repository. **Source-inspected** means a script or archive was examined. **Pending** means not verified. Do not interpret a generated patch or successful root test as proof of a complete unlock.
 
-## Reproduce and contribute
+The Amonet process writes boot-critical partitions. Failed flashing can require hardware test-point recovery. Do not run Step 1 or Step 2 just to reproduce this journal on an already modified tablet. Keep serials, raw GPT dumps, firmware images and identifying logs out of public commits. Third-party firmware/binaries are referenced, not redistributed.
 
-Clone this repo, run read-only capture, save a sanitized experiment entry using [`templates/experiment.md`](templates/experiment.md), then commit. Do not publish device serials, identifiers, user data, GPT dumps, keys or proprietary firmware without review.
-
-License: documentation and our original tools under MIT (`LICENSE`); third-party Amonet, MTK-SU, firmware and TWRP retain their own licenses and ownership.
+Original documentation/tools: MIT license. Upstream firmware and tools retain their respective rights.
